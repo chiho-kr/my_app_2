@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="2021~2025년 서울 아파트 전세가격지수의 변화와 전년 대비 증감률을 분석한 Plotly 데이터 시각화 과제입니다.">
+  <meta name="theme-color" content="#172554">
+  <title>서울 전세, 5년의 흐름 | 과제 2</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="assets/plotly.min.js"></script>
+  <script defer src="assets/charts.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="#top"><span class="brand-icon" aria-hidden="true">↗</span> SEOUL HOUSING</a><span class="assignment">데이터 시각화 · 과제 02</span></header>
+  <main id="top">
+    <section class="intro">
+      <p class="eyebrow"><span></span> SEOUL JEONSE REPORT / 2021—2025</p>
+      <h1>서울 전세,<br><em>5년의 흐름.</em></h1>
+      <p class="intro-copy">지난 5년간 서울시 전세 가격은 어떻게 변했을까?<br>서울 아파트 전세가격지수로 상승, 하락, 그리고 회복의 흐름을 살펴봅니다.</p>
+      <div class="tags"><span>서울 아파트</span><span>2021~2025년</span><span>2021.6 = 100</span><span>Python · Plotly</span></div>
+    </section>
+    <section class="metrics" aria-label="핵심 수치">
+      <article><p>분석 기간 최고 지수 <span class="dot purple"></span></p><strong>112.9</strong><small>2022년 · 5개 연도 중 최고</small></article>
+      <article><p>가장 큰 연간 하락 <span class="dot coral"></span></p><strong class="coral-text">−19.0<span>%</span></strong><small>2023년 · 전년 대비</small></article>
+      <article><p>최근 연도 변화율 <span class="dot teal"></span></p><strong class="teal-text">+3.9<span>%</span></strong><small>2025년 · 2년 연속 반등</small></article>
+    </section>
+    <section class="section" aria-labelledby="trend-heading">
+      <div class="section-heading"><div><p class="eyebrow">01 / PRICE TREND</p><h2 id="trend-heading">하락을 지나, 다시 회복으로</h2></div><span class="section-caption">마우스를 올려 연도별 값을 확인하세요</span></div>
+      <div class="chart-card"><div id="trend-chart" class="chart" role="img" aria-label="서울 아파트 전세가격지수: 2021년 109.5, 2022년 112.9, 2023년 91.4, 2024년 96.8, 2025년 100.6"></div></div>
+      <p class="chart-note"><span class="note-line"></span> 2022년에 고점을 기록한 후 2023년에 하락했고, 2024~2025년에는 2년 연속 반등했습니다.</p>
+    </section>
+    <section class="section" aria-labelledby="change-heading">
+      <div class="section-heading"><div><p class="eyebrow">02 / YEAR-OVER-YEAR</p><h2 id="change-heading">변화의 크기를 비교하면</h2></div><div class="legend"><span><i class="dot teal"></i> 상승</span><span><i class="dot coral"></i> 하락</span></div></div>
+      <div class="chart-card"><div id="change-chart" class="chart" role="img" aria-label="전년 대비 변화율: 2022년 3.1% 상승, 2023년 19.0% 하락, 2024년 5.9% 상승, 2025년 3.9% 상승"></div></div>
+    </section>
+    <section class="section" aria-labelledby="data-heading">
+      <div class="section-heading"><div><p class="eyebrow">03 / THE DATA</p><h2 id="data-heading">연도별 지수와 변화율</h2></div><a class="download" href="data/seoul-jeonse.csv" download>CSV 내려받기 <span aria-hidden="true">↗</span></a></div>
+      <div class="table-card"><table><caption class="sr-only">서울 아파트 전세가격지수와 전년 대비 변화율</caption><thead><tr><th scope="col">연도</th><th scope="col">전세가격지수</th><th scope="col">전년 대비 변화율</th><th scope="col">흐름</th></tr></thead><tbody>
+        <tr><th scope="row">2021</th><td>109.5</td><td class="muted">—</td><td><span class="pill neutral">비교 시작</span></td></tr>
+        <tr><th scope="row">2022</th><td>112.9</td><td class="teal-text">+3.1%</td><td><span class="pill positive">상승</span></td></tr>
+        <tr><th scope="row">2023</th><td>91.4</td><td class="coral-text">−19.0%</td><td><span class="pill negative">하락</span></td></tr>
+        <tr><th scope="row">2024</th><td>96.8</td><td class="teal-text">+5.9%</td><td><span class="pill positive">반등</span></td></tr>
+        <tr><th scope="row">2025</th><td>100.6</td><td class="teal-text">+3.9%</td><td><span class="pill positive">반등 지속</span></td></tr>
+      </tbody></table></div>
+      <p class="table-note">변화율 = (당해 연도 지수 ÷ 전년도 지수 − 1) × 100. 2021년은 전년 값을 입력하지 않아 변화율을 표시하지 않았습니다.</p>
+    </section>
+    <section class="conclusion" aria-labelledby="conclusion-heading"><p class="eyebrow">04 / FINDINGS</p><h2 id="conclusion-heading">반등은 시작됐지만,<br>고점 회복까지는 아직.</h2><p>2025년 전세가격지수는 100.6으로, 2022년 고점인 112.9보다 약 <strong>10.9% 낮습니다.</strong> 분석 기간은 <strong>상승 → 하락 → 부분 회복</strong>의 흐름으로 설명할 수 있습니다.</p><p>2023년의 큰 하락 이후 2년 연속 반등했지만, 연간 지수만으로 월별 전환 시점이나 가격 변화의 원인을 확정할 수는 없습니다.</p></section>
+    <section class="method" aria-labelledby="method-heading"><h2 id="method-heading">자료와 분석 범위</h2><dl><div><dt>기간 · 지역</dt><dd>완결된 최근 5개 연도인 2021~2025년 · 서울</dd></div><div><dt>분석 지표</dt><dd>한국부동산원 전국주택가격동향조사의 서울 아파트 전세가격지수 연간 값. 기준은 2021년 6월=100입니다.</dd></div><div><dt>자료 출처</dt><dd><a href="https://www.index.go.kr/unity/potal/eNara/sub/showStblGams3.do?freq=Y&amp;idx_cd=F0183&amp;period=N&amp;stts_cd=F018301" target="_blank" rel="noopener noreferrer">국가지표체계 · 주택유형별 주택 전세가격 지수 ↗</a></dd></div><div><dt>해석 시 유의점</dt><dd>이 지수는 개별 계약의 평균 보증금과 다릅니다. 아파트 이외의 단독·연립·다세대는 포함하지 않으며, 서울 전체 주택으로 일반화할 때는 주의가 필요합니다.</dd></div></dl><a class="download" href="analysis.ipynb" download>과제 Python 노트북 내려받기 ↗</a></section>
+  </main>
+  <footer><span>SEOUL JEONSE REPORT</span><span>과제 2 · 지난 5년간 서울시 전세 가격 변화 분석</span></footer>
+</body>
+</html>
