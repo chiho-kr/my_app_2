@@ -1,10 +1,6 @@
-__pycache__/
-.venv/
 node_modules/
 .wrangler/
 .env
-*.log
-
-.dev.vars*
-!.dev.vars.example
+.env.*
 !.env.example
+.dev.vars

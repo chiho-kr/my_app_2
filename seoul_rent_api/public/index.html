@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>서울 전세가 평균 (API)</title>
+<style>
+  :root { --orange:#f97316; --orange-dark:#ea580c; --orange-soft:#fff3e6; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --bg:#fffdfb; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,"Pretendard","Noto Sans KR",sans-serif; }
+  main { max-width:620px; margin:0 auto; padding:48px 16px; }
+  h1 { font-size:26px; margin:0 0 6px; } h1 span { color:var(--orange); }
+  .sub { color:var(--muted); margin:0 0 28px; font-size:14px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:20px; box-shadow:0 2px 12px rgba(249,115,22,.06); }
+  label { display:block; font-size:13px; color:var(--muted); margin:14px 0 6px; } label:first-child { margin-top:0; }
+  select { width:100%; padding:12px; font-size:16px; border:1px solid var(--line); border-radius:10px; background:#fff; color:var(--ink); }
+  select:focus { outline:2px solid var(--orange); border-color:var(--orange); }
+  .result { margin-top:20px; background:var(--orange-soft); border-radius:16px; padding:24px; text-align:center; }
+  .where,.meta,.note { font-size:14px; color:var(--muted); }
+  .price { font-size:40px; font-weight:800; color:var(--orange-dark); margin:6px 0; }
+  .err { color:#b91c1c; }
+  .note { margin-top:8px; font-size:12px; }
+  .scroll { max-height:340px; overflow:auto; margin-top:16px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th,td { padding:8px 6px; border-bottom:1px solid var(--line); text-align:right; white-space:nowrap; }
+  th:first-child,td:first-child { text-align:left; } th { color:var(--muted); font-weight:500; position:sticky; top:0; background:#fff; }
+  footer { margin-top:24px; font-size:12px; color:var(--muted); line-height:1.6; }
+</style>
+</head>
+<body>
+<main>
+  <h1>서울 <span>전세가</span> 평균</h1>
+  <p class="sub">자치구와 행정동을 고르면 서울시 열린데이터광장에서 2026년 전세 계약을 불러와 평균을 계산해요.</p>
+  <div class="card">
+    <label for="gu">자치구</label><select id="gu"></select>
+    <label for="dong">행정동</label><select id="dong"></select>
+    <label for="usg">주택유형</label><select id="usg"></select>
+    <div id="out"></div>
+  </div>
+  <footer>데이터: 서울 열린데이터광장 부동산 전월세가 정보(2026년 접수, 전세만). 법정동 기준 단순 평균입니다.</footer>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const won = m => { const e = Math.floor(m / 10000), r = Math.round(m % 10000);
+  return (e ? e + "억 " : "") + (r ? r.toLocaleString() + "만원" : (e ? "" : "0원")); };
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let dongs = {}, seq = 0;
+
+async function load() {
+  const my = ++seq, gu = $("gu").value, dong = $("dong").value, usg = $("usg").value;
+  const g = dongs[gu], d = g?.dongs.find(x => x.name === dong);
+  if (!d) return;
+  $("out").innerHTML = `<div class="result"><div class="meta">불러오는 중…</div></div>`;
+  try {
+    const res = await fetch(`/api/rent?cgg=${g.code}&stdg=${d.code}&usg=${encodeURIComponent(usg)}`);
+    const data = await res.json();
+    if (my !== seq) return;
+    if (!res.ok) throw new Error(data.error || "요청 실패");
+    if (!data.count) { $("out").innerHTML = `<div class="result"><div class="meta">${esc(dong)}의 ${esc(usg)} ${data.year}년 전세 자료가 없어요.</div></div>`; return; }
+    $("out").innerHTML = `<div class="result"><div class="where">${esc(gu)} ${esc(dong)} · ${esc(usg)} · ${data.year}년</div>
+      <div class="price">${won(data.average)}</div>
+      <div class="meta">${Math.round(data.average).toLocaleString()}만원 · 전세 ${data.count}건</div>
+      ${data.truncated ? `<div class="note">자료가 많아 일부(${data.fetched}건)만 반영됐어요.</div>` : ""}</div>
+      <div class="scroll"><table><tr><th>계약일</th><th>건물</th><th>층</th><th>면적㎡</th><th>보증금</th></tr>` +
+      data.rows.map(r => `<tr><td>${esc(r.date)}</td><td>${esc(r.name) || "-"}</td><td>${esc(r.floor)}</td><td>${r.area}</td><td>${won(r.deposit)}</td></tr>`).join("") +
+      `</table></div>`;
+  } catch (e) {
+    if (my === seq) $("out").innerHTML = `<div class="result"><div class="meta err">${esc(e.message)}</div></div>`;
+  }
+}
+function onGu() { $("dong").innerHTML = dongs[$("gu").value].dongs.map(d => `<option>${d.name}</option>`).join(""); load(); }
+
+fetch("/dongs.json").then(r => r.json()).then(d => {
+  dongs = d;
+  $("gu").innerHTML = Object.keys(d).map(g => `<option>${g}</option>`).join("");
+  $("usg").innerHTML = ["아파트","연립다세대","단독다가구","오피스텔"].map(u => `<option>${u}</option>`).join("");
+  $("gu").onchange = onGu; $("dong").onchange = $("usg").onchange = load;
+  onGu();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>서울 전세가 평균</title>
+<style>
+  :root { --orange:#f97316; --orange-dark:#ea580c; --orange-soft:#fff3e6; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --bg:#fffdfb; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,"Pretendard","Noto Sans KR",sans-serif; }
+  main { max-width:560px; margin:0 auto; padding:48px 16px; }
+  h1 { font-size:26px; margin:0 0 6px; }
+  h1 span { color:var(--orange); }
+  .sub { color:var(--muted); margin:0 0 28px; font-size:14px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:20px; box-shadow:0 2px 12px rgba(249,115,22,.06); }
+  label { display:block; font-size:13px; color:var(--muted); margin:14px 0 6px; }
+  label:first-child { margin-top:0; }
+  select { width:100%; padding:12px; font-size:16px; border:1px solid var(--line); border-radius:10px; background:#fff; color:var(--ink); }
+  select:focus { outline:2px solid var(--orange); border-color:var(--orange); }
+  .result { margin-top:20px; background:var(--orange-soft); border-radius:16px; padding:24px; text-align:center; }
+  .result .where { font-size:14px; color:var(--muted); }
+  .result .price { font-size:40px; font-weight:800; color:var(--orange-dark); margin:6px 0; }
+  .result .meta { font-size:14px; color:var(--muted); }
+  .empty { color:var(--muted); text-align:center; padding:8px 0; }
+  table { width:100%; border-collapse:collapse; margin-top:20px; font-size:14px; }
+  th,td { padding:10px 6px; border-bottom:1px solid var(--line); text-align:right; }
+  th:first-child,td:first-child { text-align:left; }
+  th { color:var(--muted); font-weight:500; }
+  tr.on td { color:var(--orange-dark); font-weight:700; }
+  footer { margin-top:24px; font-size:12px; color:var(--muted); line-height:1.6; }
+</style>
+</head>
+<body>
+<main>
+  <h1>서울 <span>전세가</span> 평균</h1>
+  <p class="sub">동과 주택유형을 고르면 평균 전세 보증금을 알려드려요.</p>
+  <div class="card">
+    <label for="gu">자치구</label><select id="gu"></select>
+    <label for="dong">행정동</label><select id="dong"></select>
+    <label for="usg">주택유형</label><select id="usg"></select>
+    <div id="out"></div>
+  </div>
+  <footer>데이터: 서울 열린데이터광장 부동산 전월세가 정보(전세 계약) 동별·주택유형별 평균. 법정동 기준이며 평균은 단순 평균입니다.</footer>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const won = m => { const eok = Math.floor(m / 10000), man = Math.round(m % 10000);
+  return (eok ? eok + "억 " : "") + (man ? man.toLocaleString() + "만원" : (eok ? "" : "0원")); };
+let rows = [];
+const uniq = a => [...new Set(a)];
+function fill(sel, items) { sel.innerHTML = items.map(v => `<option>${v}</option>`).join(""); }
+
+function render() {
+  const gu = $("gu").value, dong = $("dong").value, usg = $("usg").value;
+  const mine = rows.filter(r => r.gu === gu && r.dong === dong);
+  const hit = mine.find(r => r.usg === usg);
+  let html = "";
+  if (hit) {
+    html += `<div class="result"><div class="where">${gu} ${dong} · ${usg}</div>
+      <div class="price">${won(hit.avg)}</div>
+      <div class="meta">${hit.avg.toLocaleString(undefined,{maximumFractionDigits:0})}만원 · 거래 ${hit.n}건</div></div>`;
+  } else {
+    html += `<div class="result"><div class="empty">${dong}에는 ${usg} 전세 거래 자료가 없어요.</div></div>`;
+  }
+  html += `<table><tr><th>주택유형</th><th>평균 전세가</th><th>거래</th></tr>` +
+    mine.map(r => `<tr class="${r.usg === usg ? "on" : ""}"><td>${r.usg}</td><td>${won(r.avg)}</td><td>${r.n}건</td></tr>`).join("") + `</table>`;
+  $("out").innerHTML = html;
+}
+function onGu() { fill($("dong"), uniq(rows.filter(r => r.gu === $("gu").value).map(r => r.dong))); render(); }
+
+fetch("data/jeonse_mean.csv").then(r => r.text()).then(t => {
+  rows = t.replace(/^﻿/, "").trim().split(/\r?\n/).slice(1).map(l => {
+    const c = l.split(",");
+    return { gu:c[1], dong:c[2], usg:c[3], avg:+c[4], n:+c[5] };
+  });
+  fill($("gu"), uniq(rows.map(r => r.gu)));
+  fill($("usg"), ["아파트","연립다세대","단독다가구","오피스텔"]);
+  $("gu").onchange = onGu; $("dong").onchange = $("usg").onchange = render;
+  onGu();
+});
+</script>
+</body>
+</html>
