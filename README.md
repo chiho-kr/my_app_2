@@ -2,6 +2,8 @@
 
 자치구·행정동·주택유형을 고르면 평균 전세가를 알려주는 앱입니다. 하나의 Cloudflare Worker에 두 버전이 함께 배포됩니다.
 
+배포 주소: https://my-app-2.chiho-kang.workers.dev (옵션 2: `/live/`)
+
 | 경로 | 옵션 | 데이터 |
 | --- | --- | --- |
 | `/` | 옵션 1 | 전처리된 `public/data/jeonse_mean.csv` |
