@@ -40,6 +40,7 @@
     <label for="usg">주택유형</label><select id="usg"></select>
     <div id="out"></div>
   </div>
+  <p style="margin-top:20px;font-size:14px"><a href="/live/" style="color:var(--orange-dark);font-weight:600">실시간 API 버전 보기 →</a></p>
   <footer>데이터: 서울 열린데이터광장 부동산 전월세가 정보(전세 계약) 동별·주택유형별 평균. 법정동 기준이며 평균은 단순 평균입니다.</footer>
 </main>
 <script>
@@ -71,7 +72,7 @@ function onGu() { fill($("dong"), uniq(rows.filter(r => r.gu === $("gu").value).
 fetch("data/jeonse_mean.csv").then(r => r.text()).then(t => {
   rows = t.replace(/^﻿/, "").trim().split(/\r?\n/).slice(1).map(l => {
     const c = l.split(",");
-    return { gu:c[1], dong:c[2], usg:c[3], avg:+c[4], n:+c[5] };
+    return { gu:c[0], dong:c[1], usg:c[2], avg:+c[3], n:+c[4] };
   });
   fill($("gu"), uniq(rows.map(r => r.gu)));
   fill($("usg"), ["아파트","연립다세대","단독다가구","오피스텔"]);
